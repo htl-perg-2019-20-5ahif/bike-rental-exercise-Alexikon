@@ -35,9 +35,13 @@ namespace BikeRental.Model
 
         // References
         [Required]
+        public int CustomerID { get; set; }
+
         public Customer Renter { get; set; }
 
         [Required]
+        public int BikeID { get; set; }
+
         public Bike RentedBike { get; set; }
     }
 }

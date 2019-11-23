@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BikeRentalExercise.Migrations
 {
@@ -56,35 +56,35 @@ namespace BikeRentalExercise.Migrations
                     RentalEnd = table.Column<DateTime>(nullable: true),
                     TotalRentalCosts = table.Column<decimal>(nullable: true),
                     Paid = table.Column<bool>(nullable: false),
-                    RenterCustomerId = table.Column<int>(nullable: false),
-                    RentedBikeBikeId = table.Column<int>(nullable: false)
+                    CustomerID = table.Column<int>(nullable: false),
+                    BikeID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Rentals", x => x.RentalId);
                     table.ForeignKey(
-                        name: "FK_Rentals_Bikes_RentedBikeBikeId",
-                        column: x => x.RentedBikeBikeId,
+                        name: "FK_Rentals_Bikes_BikeID",
+                        column: x => x.BikeID,
                         principalTable: "Bikes",
                         principalColumn: "BikeId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Rentals_Customers_RenterCustomerId",
-                        column: x => x.RenterCustomerId,
+                        name: "FK_Rentals_Customers_CustomerID",
+                        column: x => x.CustomerID,
                         principalTable: "Customers",
                         principalColumn: "CustomerId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rentals_RentedBikeBikeId",
+                name: "IX_Rentals_BikeID",
                 table: "Rentals",
-                column: "RentedBikeBikeId");
+                column: "BikeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rentals_RenterCustomerId",
+                name: "IX_Rentals_CustomerID",
                 table: "Rentals",
-                column: "RenterCustomerId");
+                column: "CustomerID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

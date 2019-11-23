@@ -10,7 +10,7 @@ using web;
 namespace BikeRentalExercise.Migrations
 {
     [DbContext(typeof(BikeRentalContext))]
-    [Migration("20191123095455_Initial")]
+    [Migration("20191123150519_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,6 +111,12 @@ namespace BikeRentalExercise.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("BikeID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomerID")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
@@ -120,20 +126,14 @@ namespace BikeRentalExercise.Migrations
                     b.Property<DateTime?>("RentalEnd")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RentedBikeBikeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RenterCustomerId")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("TotalRentalCosts")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("RentalId");
 
-                    b.HasIndex("RentedBikeBikeId");
+                    b.HasIndex("BikeID");
 
-                    b.HasIndex("RenterCustomerId");
+                    b.HasIndex("CustomerID");
 
                     b.ToTable("Rentals");
                 });
@@ -142,13 +142,13 @@ namespace BikeRentalExercise.Migrations
                 {
                     b.HasOne("BikeRental.Model.Bike", "RentedBike")
                         .WithMany("Rentals")
-                        .HasForeignKey("RentedBikeBikeId")
+                        .HasForeignKey("BikeID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BikeRental.Model.Customer", "Renter")
                         .WithMany("Rentals")
-                        .HasForeignKey("RenterCustomerId")
+                        .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
