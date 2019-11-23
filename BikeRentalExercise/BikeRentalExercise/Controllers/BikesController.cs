@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using web;
 
-namespace BikeRental.Controllers
+namespace BikeRentalExercise.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -35,8 +35,7 @@ namespace BikeRental.Controllers
         }
 
         // GET: api/Bikes/5
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Bike>> GetBike(int id)
         {
             var bike = await _context.Bikes.FindAsync(id);
@@ -50,26 +49,25 @@ namespace BikeRental.Controllers
         }
 
         // PUT: api/Bikes/5
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> PutBike(int id, [FromBody] Bike bike)
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBike(int id, Bike bike)
         {
             if (id != bike.BikeId)
             {
                 return BadRequest();
             }
 
-            using var transaction = _context.Database.BeginTransaction();
             _context.Entry(bike).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Bikes.Any(e => e.BikeId == id))
+                if (!BikeExists(id))
                 {
                     return NotFound();
                 }
@@ -83,26 +81,21 @@ namespace BikeRental.Controllers
         }
 
         // POST: api/Bikes
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Bike>> PostBike([FromBody] Bike bike)
+        public async Task<ActionResult<Bike>> PostBike(Bike bike)
         {
-            using var transaction = _context.Database.BeginTransaction();
-
             _context.Bikes.Add(bike);
-
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
-            return Created("Created Bike", bike);
+            return CreatedAtAction("GetBike", new { id = bike.BikeId }, bike);
         }
 
         // DELETE: api/Bikes/5
-        [HttpDelete]
-        [Route("{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<Bike>> DeleteBike(int id)
         {
-            using var transaction = _context.Database.BeginTransaction();
-
             var bike = await _context.Bikes.FindAsync(id);
             if (bike == null)
             {
@@ -111,9 +104,13 @@ namespace BikeRental.Controllers
 
             _context.Bikes.Remove(bike);
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
             return bike;
+        }
+
+        private bool BikeExists(int id)
+        {
+            return _context.Bikes.Any(e => e.BikeId == id);
         }
     }
 }

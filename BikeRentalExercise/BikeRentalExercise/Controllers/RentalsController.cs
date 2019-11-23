@@ -1,4 +1,5 @@
-﻿using BikeRental.Model;
+﻿using BikeRental;
+using BikeRental.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using web;
 
-namespace BikeRental.Controllers
+namespace BikeRentalExercise.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -33,8 +34,7 @@ namespace BikeRental.Controllers
         }
 
         // GET: api/Rentals/5
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Rental>> GetRental(int id)
         {
             var rental = await _context.Rentals.FindAsync(id);
@@ -48,23 +48,10 @@ namespace BikeRental.Controllers
         }
 
         // PUT: api/Rentals/5
-        [HttpPost]
-        public async Task<IActionResult> PutRental([FromBody] Rental rental)
-        {
-            using var transaction = _context.Database.BeginTransaction();
-
-            _context.Rentals.Add(rental);
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            return Created("Created Rental", rental);
-        }
-
-        // PUT: api/Rentals/5
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> PutRental(int id, [FromBody] Rental rental)
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutRental(int id, Rental rental)
         {
             if (id != rental.RentalId)
             {
@@ -79,7 +66,7 @@ namespace BikeRental.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Rentals.Any(e => e.RentalId == id))
+                if (!RentalExists(id))
                 {
                     return NotFound();
                 }
@@ -92,9 +79,20 @@ namespace BikeRental.Controllers
             return NoContent();
         }
 
+        // POST: api/Rentals
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
+        [HttpPost]
+        public async Task<ActionResult<Rental>> PostRental(Rental rental)
+        {
+            _context.Rentals.Add(rental);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetRental", new { id = rental.RentalId }, rental);
+        }
+
         // DELETE: api/Rentals/5
-        [HttpDelete]
-        [Route("{id}")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<Rental>> DeleteRental(int id)
         {
             var rental = await _context.Rentals.FindAsync(id);
@@ -103,13 +101,15 @@ namespace BikeRental.Controllers
                 return NotFound();
             }
 
-            using var transaction = _context.Database.BeginTransaction();
-
             _context.Rentals.Remove(rental);
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
             return rental;
+        }
+
+        private bool RentalExists(int id)
+        {
+            return _context.Rentals.Any(e => e.RentalId == id);
         }
 
         // POST: api/Rentals/5/end
@@ -169,7 +169,7 @@ namespace BikeRental.Controllers
             return NoContent();
         }
 
-        // GET: api/Rentals
+        // GET: api/Rentals/unpaid
         [HttpGet]
         [Route("unpaid")]
         public async Task<ActionResult<IEnumerable<Rental>>> GetUnpaidRentals()

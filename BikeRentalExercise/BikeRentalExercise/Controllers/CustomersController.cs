@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using web;
 
-namespace BikeRental.Controllers
+namespace BikeRentalExercise.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -27,8 +27,7 @@ namespace BikeRental.Controllers
         }
 
         // GET: api/Customers/5
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
@@ -41,38 +40,26 @@ namespace BikeRental.Controllers
             return customer;
         }
 
-        // GET: api/Customers?filter="<filter>"
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer([FromQuery(Name = "filter")] string filter)
-        {
-            if (string.IsNullOrEmpty(filter))
-            {
-                return await _context.Customers.Include(c => c.Rentals).ToArrayAsync();
-            }
-            return await _context.Customers.Include(c => c.Rentals).Where(c => c.LastName.Contains(filter)).ToArrayAsync();
-        }
-
         // PUT: api/Customers/5
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> PutCustomer(int id, [FromBody] Customer customer)
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
             if (id != customer.CustomerId)
             {
                 return BadRequest();
             }
 
-            using var transaction = _context.Database.BeginTransaction();
             _context.Entry(customer).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Customers.Any(e => e.CustomerId == id))
+                if (!CustomerExists(id))
                 {
                     return NotFound();
                 }
@@ -86,17 +73,15 @@ namespace BikeRental.Controllers
         }
 
         // POST: api/Customers
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer([FromBody] Customer customer)
+        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            using var transaction = _context.Database.BeginTransaction();
-
             _context.Customers.Add(customer);
-
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
-            return Created("Created Customer", customer);
+            return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
         // DELETE: api/Customers/5
@@ -109,32 +94,26 @@ namespace BikeRental.Controllers
                 return NotFound();
             }
 
-            using var transaction = _context.Database.BeginTransaction();
-
             _context.Customers.Remove(customer);
-
             await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
 
             return customer;
         }
 
-        // GET: api/Customers/5
-        [HttpGet]
-        [Route("{id/rentals}")]
-        public async Task<ActionResult<Customer>> GetCustomerRentals(int id)
+        private bool CustomerExists(int id)
         {
-            var customer = await _context.Customers
-                .Where(c => c.CustomerId == id)
-                .Include(c => c.Rentals)
-                .FirstOrDefaultAsync();
+            return _context.Customers.Any(e => e.CustomerId == id);
+        }
 
-            if (customer == null)
+        // GET: api/Customers?filter="<filter>"
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer([FromQuery(Name = "filter")] string filter)
+        {
+            if (string.IsNullOrEmpty(filter))
             {
-                return NotFound();
+                return await _context.Customers.Include(c => c.Rentals).ToArrayAsync();
             }
-
-            return customer;
+            return await _context.Customers.Include(c => c.Rentals).Where(c => c.LastName.Contains(filter)).ToArrayAsync();
         }
     }
 }
