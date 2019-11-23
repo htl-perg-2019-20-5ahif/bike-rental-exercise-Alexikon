@@ -23,6 +23,8 @@ namespace BikeRental
             services.AddTransient<ICostCalculator, CostCalculator>();
 
             services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(settings => settings.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             services.AddDbContext<BikeRentalContext>(options => options.UseSqlServer(
                 Configuration["ConnectionStrings:DefaultConnection"]));
         }
