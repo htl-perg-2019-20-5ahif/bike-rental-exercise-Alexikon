@@ -1,5 +1,4 @@
-﻿using BikeRental.Model;
-using System;
+﻿using System;
 
 namespace BikeRental
 {

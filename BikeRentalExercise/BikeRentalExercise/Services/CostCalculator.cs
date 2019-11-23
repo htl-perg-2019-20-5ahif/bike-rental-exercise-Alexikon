@@ -1,5 +1,4 @@
-﻿using BikeRental.Model;
-using System;
+﻿using System;
 
 namespace BikeRental
 {
@@ -13,8 +12,8 @@ namespace BikeRental
                 return 0;
             }
 
-            var additionalHours = (int) Math.Ceiling((duration.Subtract(TimeSpan.FromHours(1))).TotalHours);
-            
+            var additionalHours = (int)Math.Ceiling((duration.Subtract(TimeSpan.FromHours(1))).TotalHours);
+
             return prizeFirstHour + additionalHours * prizeAdditionalHours;
         }
     }
