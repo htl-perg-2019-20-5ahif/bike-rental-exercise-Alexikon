@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using web;
 
 namespace BikeRental
@@ -27,6 +28,11 @@ namespace BikeRental
 
             services.AddDbContext<BikeRentalContext>(options => options.UseSqlServer(
                 Configuration["ConnectionStrings:DefaultConnection"]));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "BikeRentalAPI", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +44,15 @@ namespace BikeRental
             }
 
             app.UseHttpsRedirection();
+
+            
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BikeRentalAPI V1");
+            });
+
 
             app.UseRouting();
 

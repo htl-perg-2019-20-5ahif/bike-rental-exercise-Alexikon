@@ -21,7 +21,7 @@ namespace BikeRentalExercise.Controllers
 
         // GET: api/Bikes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bike>>> GetBikes([FromQuery] string sort)
+        public async Task<ActionResult<IEnumerable<Bike>>> GetBikes([FromQuery(Name = "sort")] string sort)
         {
             var bikes = await _context.Bikes.Include(b => b.Rentals).Where(b => b.LastService != null).ToArrayAsync();
 
